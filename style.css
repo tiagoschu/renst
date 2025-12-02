@@ -47,8 +47,24 @@ h1 {
     color: #4CAF50;
 }
 
-.high-score {
-    color: #FF9800;
+.level {
+    color: #2196F3;
+}
+
+.lives {
+    color: #E91E63;
+}
+
+.heart {
+    display: inline-block;
+    font-size: 1.2em;
+    margin: 0 2px;
+    animation: heartbeat 1.5s ease-in-out infinite;
+}
+
+@keyframes heartbeat {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
 }
 
 .game-info {
@@ -102,6 +118,26 @@ button {
     color: white;
 }
 
+#leaderboardBtn {
+    background: linear-gradient(135deg, #ffd89b 0%, #19547b 100%);
+    color: white;
+}
+
+#submitScore {
+    background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+    color: white;
+    width: 100%;
+    margin-top: 15px;
+}
+
+.danger-btn {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+    color: white;
+    margin-top: 20px;
+    font-size: 0.9em;
+    padding: 8px 20px;
+}
+
 button:hover {
     transform: translateY(-2px);
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
@@ -117,16 +153,205 @@ button:disabled {
     transform: none;
 }
 
+/* Modal Styles */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(5px);
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.modal-content {
+    background: white;
+    margin: 5% auto;
+    padding: 30px;
+    border-radius: 20px;
+    max-width: 500px;
+    width: 90%;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+    from {
+        transform: translateY(-50px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.modal-header h2 {
+    color: #667eea;
+    margin: 0;
+    font-size: 1.8em;
+}
+
+.close {
+    color: #aaa;
+    font-size: 32px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: color 0.3s;
+}
+
+.close:hover {
+    color: #000;
+}
+
+.modal-message {
+    text-align: center;
+    color: #555;
+    font-size: 1.1em;
+    margin: 10px 0;
+}
+
+#playerName {
+    width: 100%;
+    padding: 12px;
+    font-size: 1.1em;
+    border: 2px solid #667eea;
+    border-radius: 10px;
+    margin-top: 15px;
+    outline: none;
+    transition: border-color 0.3s;
+}
+
+#playerName:focus {
+    border-color: #764ba2;
+}
+
+/* Leaderboard List */
+.leaderboard-list {
+    max-height: 400px;
+    overflow-y: auto;
+    margin: 20px 0;
+}
+
+.leaderboard-entry {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    margin: 10px 0;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    border-radius: 10px;
+    transition: transform 0.2s;
+}
+
+.leaderboard-entry:hover {
+    transform: translateX(5px);
+}
+
+.leaderboard-entry.top-1 {
+    background: linear-gradient(135deg, #ffd89b 0%, #ffb347 100%);
+    font-weight: bold;
+    font-size: 1.1em;
+}
+
+.leaderboard-entry.top-2 {
+    background: linear-gradient(135deg, #e0e0e0 0%, #c0c0c0 100%);
+    font-weight: bold;
+}
+
+.leaderboard-entry.top-3 {
+    background: linear-gradient(135deg, #ffccbc 0%, #ff8a65 100%);
+    font-weight: bold;
+}
+
+.entry-rank {
+    font-size: 1.5em;
+    font-weight: bold;
+    min-width: 40px;
+}
+
+.entry-name {
+    flex: 1;
+    padding: 0 15px;
+    font-size: 1.1em;
+}
+
+.entry-score {
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #4CAF50;
+}
+
+.entry-level {
+    font-size: 0.9em;
+    color: #2196F3;
+    margin-left: 10px;
+}
+
+.no-scores {
+    text-align: center;
+    color: #999;
+    padding: 40px;
+    font-size: 1.1em;
+}
+
 @media (max-width: 600px) {
     h1 {
         font-size: 2em;
     }
 
     .score-board {
-        font-size: 1em;
+        font-size: 0.9em;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .score-board > div {
+        flex: 1 1 40%;
     }
 
     #gameCanvas {
         height: 400px;
+    }
+
+    .controls {
+        flex-wrap: wrap;
+    }
+
+    button {
+        flex: 1 1 45%;
+        padding: 10px 15px;
+        font-size: 1em;
+    }
+
+    .modal-content {
+        margin: 10% auto;
+        padding: 20px;
+    }
+
+    .leaderboard-entry {
+        flex-wrap: wrap;
+        padding: 10px;
+    }
+
+    .entry-name {
+        flex: 1 1 100%;
+        order: -1;
+        margin-bottom: 10px;
     }
 }

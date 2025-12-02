@@ -12,7 +12,14 @@
             <h1>Tower Stack</h1>
             <div class="score-board">
                 <div class="score">Score: <span id="score">0</span></div>
-                <div class="high-score">High Score: <span id="highScore">0</span></div>
+                <div class="level">Level: <span id="level">1</span></div>
+                <div class="lives">
+                    <span id="livesDisplay">
+                        <span class="heart">❤️</span>
+                        <span class="heart">❤️</span>
+                        <span class="heart">❤️</span>
+                    </span>
+                </div>
             </div>
         </div>
 
@@ -25,6 +32,34 @@
         <div class="controls">
             <button id="startBtn">Start Game</button>
             <button id="restartBtn" style="display: none;">Restart</button>
+            <button id="leaderboardBtn">Leaderboard</button>
+        </div>
+    </div>
+
+    <!-- Leaderboard Modal -->
+    <div id="leaderboardModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>🏆 Leaderboard</h2>
+                <span class="close">&times;</span>
+            </div>
+            <div class="leaderboard-list" id="leaderboardList">
+                <p class="no-scores">No scores yet! Be the first to play!</p>
+            </div>
+            <button id="clearLeaderboardBtn" class="danger-btn">Clear Leaderboard</button>
+        </div>
+    </div>
+
+    <!-- Name Entry Modal -->
+    <div id="nameModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>🎉 New High Score!</h2>
+            </div>
+            <p class="modal-message">You scored <span id="finalScore">0</span> points!</p>
+            <p class="modal-message">Enter your name for the leaderboard:</p>
+            <input type="text" id="playerName" maxlength="20" placeholder="Your Name" autocomplete="off">
+            <button id="submitScore">Submit Score</button>
         </div>
     </div>
 
