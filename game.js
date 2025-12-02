@@ -283,6 +283,8 @@ class TowerGame {
             if (wasRunning) {
                 this.gameRunning = true;
                 this.updateMessage('Keep going!');
+                // Restart the game loop
+                this.gameLoop();
             }
         }, 1000);
     }
