@@ -7,22 +7,67 @@ const CONFIG = {
     BASE_SPEED: 2,
     BLOCKS_PER_LEVEL: 10,
     MAX_LIVES: 3,
-    COLORS: [
-        '#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A',
-        '#98D8C8', '#F7DC6F', '#BB8FCE', '#85C1E2',
-        '#F8B739', '#52B788', '#E63946', '#457B9D'
-    ],
     LEVEL_THEMES: [
-        { bg: '#f5f5f5', name: 'Beginner' },
-        { bg: '#e3f2fd', name: 'Novice' },
-        { bg: '#f3e5f5', name: 'Intermediate' },
-        { bg: '#fff3e0', name: 'Advanced' },
-        { bg: '#fce4ec', name: 'Expert' },
-        { bg: '#e0f2f1', name: 'Master' },
-        { bg: '#fff9c4', name: 'Legend' },
-        { bg: '#ffe0b2', name: 'Champion' },
-        { bg: '#f1f8e9', name: 'Ultimate' },
-        { bg: '#ffebee', name: 'Godlike' }
+        {
+            name: 'Beginner',
+            bgGradient: ['#FFF5E1', '#FFE4B5'],
+            pattern: 'dots',
+            colors: ['#FF6B6B', '#FF8787', '#FFA5A5', '#FFC0CB']
+        },
+        {
+            name: 'Novice',
+            bgGradient: ['#E3F2FD', '#BBDEFB'],
+            pattern: 'waves',
+            colors: ['#4ECDC4', '#45B7D1', '#5DADE2', '#85C1E2']
+        },
+        {
+            name: 'Intermediate',
+            bgGradient: ['#F3E5F5', '#E1BEE7'],
+            pattern: 'grid',
+            colors: ['#BB8FCE', '#9B59B6', '#8E44AD', '#A569BD']
+        },
+        {
+            name: 'Advanced',
+            bgGradient: ['#FFF3E0', '#FFE0B2'],
+            pattern: 'diagonal',
+            colors: ['#FFA07A', '#FF8C69', '#F8B739', '#FFB347']
+        },
+        {
+            name: 'Expert',
+            bgGradient: ['#FCE4EC', '#F8BBD0'],
+            pattern: 'circles',
+            colors: ['#E91E63', '#F06292', '#EC407A', '#FF4081']
+        },
+        {
+            name: 'Master',
+            bgGradient: ['#E0F2F1', '#B2DFDB'],
+            pattern: 'hexagon',
+            colors: ['#26A69A', '#4DB6AC', '#52B788', '#66BB6A']
+        },
+        {
+            name: 'Legend',
+            bgGradient: ['#FFF9C4', '#FFF59D'],
+            pattern: 'stars',
+            colors: ['#F7DC6F', '#F4D03F', '#F9E79F', '#FFD700']
+        },
+        {
+            name: 'Champion',
+            bgGradient: ['#FFE0B2', '#FFCC80'],
+            pattern: 'zigzag',
+            colors: ['#FF9800', '#FFB74D', '#FFA726', '#FB8C00']
+        },
+        {
+            name: 'Ultimate',
+            bgGradient: ['#C5E1A5', '#AED581'],
+            pattern: 'triangles',
+            colors: ['#8BC34A', '#9CCC65', '#7CB342', '#689F38']
+        },
+        {
+            name: 'Godlike',
+            bgGradient: ['#FFCDD2', '#EF9A9A'],
+            pattern: 'diamonds',
+            colors: ['#E63946', '#FF6B6B', '#D32F2F', '#C62828']
+        }
     ]
 };
 
@@ -84,11 +129,13 @@ class TowerGame {
         this.score = 0;
         this.level = 1;
         this.lives = CONFIG.MAX_LIVES;
+        this.retries = 1;
         this.direction = 1;
         this.blocksInLevel = 0;
 
         this.setupEventListeners();
         this.updateLivesDisplay();
+        this.updateRetriesDisplay();
     }
 
     setupEventListeners() {
@@ -147,6 +194,7 @@ class TowerGame {
         this.score = 0;
         this.level = 1;
         this.lives = CONFIG.MAX_LIVES;
+        this.retries = 1;
         this.blocks = [];
         this.direction = 1;
         this.blocksInLevel = 0;
@@ -154,24 +202,32 @@ class TowerGame {
         this.updateScore();
         this.updateLevel();
         this.updateLivesDisplay();
+        this.updateRetriesDisplay();
         this.updateMessage('Click or press SPACE to drop!');
 
-        // Add base block
+        // Add base block with level-specific color
+        const theme = this.getCurrentTheme();
         this.blocks.push({
             x: CONFIG.CANVAS_WIDTH / 2 - CONFIG.INITIAL_BLOCK_WIDTH / 2,
             y: CONFIG.CANVAS_HEIGHT - CONFIG.BLOCK_HEIGHT,
             width: CONFIG.INITIAL_BLOCK_WIDTH,
             height: CONFIG.BLOCK_HEIGHT,
-            color: CONFIG.COLORS[0]
+            color: theme.colors[0]
         });
 
         this.spawnNewBlock();
         this.gameLoop();
     }
 
+    getCurrentTheme() {
+        const themeIndex = Math.min(this.level - 1, CONFIG.LEVEL_THEMES.length - 1);
+        return CONFIG.LEVEL_THEMES[themeIndex];
+    }
+
     spawnNewBlock() {
         const lastBlock = this.blocks[this.blocks.length - 1];
-        const colorIndex = this.blocks.length % CONFIG.COLORS.length;
+        const theme = this.getCurrentTheme();
+        const colorIndex = this.blocks.length % theme.colors.length;
 
         // Calculate speed based on level
         const speed = CONFIG.BASE_SPEED + (this.level - 1) * 0.5;
@@ -181,7 +237,7 @@ class TowerGame {
             y: lastBlock.y - CONFIG.BLOCK_HEIGHT,
             width: lastBlock.width,
             height: CONFIG.BLOCK_HEIGHT,
-            color: CONFIG.COLORS[colorIndex],
+            color: theme.colors[colorIndex],
             speed: speed
         };
 
@@ -273,8 +329,13 @@ class TowerGame {
     levelUp() {
         this.level++;
         this.blocksInLevel = 0;
+        this.lives = CONFIG.MAX_LIVES; // Reset lives to 3
+        this.retries = 1; // Reset retry to 1
+
         this.updateLevel();
-        this.updateMessage(`Level ${this.level}! 🎊`);
+        this.updateLivesDisplay();
+        this.updateRetriesDisplay();
+        this.updateMessage(`Level ${this.level}! Lives & Retry restored! 🎊`);
 
         // Brief celebration pause
         const wasRunning = this.gameRunning;
@@ -307,6 +368,68 @@ class TowerGame {
         this.gameRunning = false;
         this.currentBlock = null;
 
+        // Check if player has a retry available
+        if (this.retries > 0) {
+            this.offerRetry();
+        } else {
+            this.endGame();
+        }
+    }
+
+    offerRetry() {
+        this.updateMessage(`Out of lives! Use retry? (Y/N)`);
+
+        const retryHandler = (e) => {
+            if (e.key === 'y' || e.key === 'Y') {
+                document.removeEventListener('keydown', retryHandler);
+                this.useRetry();
+            } else if (e.key === 'n' || e.key === 'N') {
+                document.removeEventListener('keydown', retryHandler);
+                this.endGame();
+            }
+        };
+
+        document.addEventListener('keydown', retryHandler);
+
+        // Also add click handler for mobile
+        const retryBtn = document.createElement('button');
+        retryBtn.textContent = 'Use Retry (1 Life)';
+        retryBtn.style.cssText = 'position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 100; padding: 15px 30px; font-size: 1.2em;';
+        retryBtn.onclick = () => {
+            document.removeEventListener('keydown', retryHandler);
+            retryBtn.remove();
+            this.useRetry();
+        };
+
+        const skipBtn = document.createElement('button');
+        skipBtn.textContent = 'End Game';
+        skipBtn.style.cssText = 'position: absolute; top: 60%; left: 50%; transform: translate(-50%, -50%); z-index: 100; padding: 15px 30px; font-size: 1.2em;';
+        skipBtn.onclick = () => {
+            document.removeEventListener('keydown', retryHandler);
+            retryBtn.remove();
+            skipBtn.remove();
+            this.endGame();
+        };
+
+        this.canvas.parentElement.appendChild(retryBtn);
+        this.canvas.parentElement.appendChild(skipBtn);
+    }
+
+    useRetry() {
+        this.retries--;
+        this.lives = 1; // Give 1 life on retry
+        this.updateLivesDisplay();
+        this.updateRetriesDisplay();
+        this.updateMessage('Retry used! 1 life granted!');
+
+        setTimeout(() => {
+            this.gameRunning = true;
+            this.spawnNewBlock();
+            this.gameLoop();
+        }, 1000);
+    }
+
+    endGame() {
         // Check if it's a leaderboard score
         if (this.leaderboardManager.isHighScore(this.score)) {
             this.showNameEntry();
@@ -407,12 +530,17 @@ class TowerGame {
 
     draw() {
         // Get level theme
-        const themeIndex = Math.min(this.level - 1, CONFIG.LEVEL_THEMES.length - 1);
-        const theme = CONFIG.LEVEL_THEMES[themeIndex];
+        const theme = this.getCurrentTheme();
 
-        // Clear canvas with level-specific background
-        this.ctx.fillStyle = theme.bg;
+        // Draw background with gradient
+        const gradient = this.ctx.createLinearGradient(0, 0, 0, CONFIG.CANVAS_HEIGHT);
+        gradient.addColorStop(0, theme.bgGradient[0]);
+        gradient.addColorStop(1, theme.bgGradient[1]);
+        this.ctx.fillStyle = gradient;
         this.ctx.fillRect(0, 0, CONFIG.CANVAS_WIDTH, CONFIG.CANVAS_HEIGHT);
+
+        // Draw background pattern
+        this.drawBackgroundPattern(theme.pattern);
 
         // Draw all placed blocks
         this.blocks.forEach(block => {
@@ -423,6 +551,117 @@ class TowerGame {
         if (this.currentBlock) {
             this.drawBlock(this.currentBlock);
         }
+    }
+
+    drawBackgroundPattern(pattern) {
+        this.ctx.globalAlpha = 0.1;
+        this.ctx.fillStyle = '#000';
+        const spacing = 30;
+
+        switch (pattern) {
+            case 'dots':
+                for (let x = 0; x < CONFIG.CANVAS_WIDTH; x += spacing) {
+                    for (let y = 0; y < CONFIG.CANVAS_HEIGHT; y += spacing) {
+                        this.ctx.beginPath();
+                        this.ctx.arc(x, y, 3, 0, Math.PI * 2);
+                        this.ctx.fill();
+                    }
+                }
+                break;
+            case 'waves':
+                for (let y = 0; y < CONFIG.CANVAS_HEIGHT; y += spacing) {
+                    this.ctx.beginPath();
+                    for (let x = 0; x < CONFIG.CANVAS_WIDTH; x += 5) {
+                        const waveY = y + Math.sin(x / 20) * 5;
+                        if (x === 0) this.ctx.moveTo(x, waveY);
+                        else this.ctx.lineTo(x, waveY);
+                    }
+                    this.ctx.stroke();
+                }
+                break;
+            case 'grid':
+                for (let x = 0; x < CONFIG.CANVAS_WIDTH; x += spacing) {
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(x, 0);
+                    this.ctx.lineTo(x, CONFIG.CANVAS_HEIGHT);
+                    this.ctx.stroke();
+                }
+                for (let y = 0; y < CONFIG.CANVAS_HEIGHT; y += spacing) {
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(0, y);
+                    this.ctx.lineTo(CONFIG.CANVAS_WIDTH, y);
+                    this.ctx.stroke();
+                }
+                break;
+            case 'diagonal':
+                for (let i = -CONFIG.CANVAS_HEIGHT; i < CONFIG.CANVAS_WIDTH + CONFIG.CANVAS_HEIGHT; i += spacing) {
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(i, 0);
+                    this.ctx.lineTo(i - CONFIG.CANVAS_HEIGHT, CONFIG.CANVAS_HEIGHT);
+                    this.ctx.stroke();
+                }
+                break;
+            case 'circles':
+                for (let x = 0; x < CONFIG.CANVAS_WIDTH; x += spacing) {
+                    for (let y = 0; y < CONFIG.CANVAS_HEIGHT; y += spacing) {
+                        this.ctx.beginPath();
+                        this.ctx.arc(x, y, 10, 0, Math.PI * 2);
+                        this.ctx.stroke();
+                    }
+                }
+                break;
+            case 'hexagon':
+            case 'stars':
+                for (let x = 0; x < CONFIG.CANVAS_WIDTH; x += spacing) {
+                    for (let y = 0; y < CONFIG.CANVAS_HEIGHT; y += spacing) {
+                        this.ctx.beginPath();
+                        this.ctx.moveTo(x, y - 5);
+                        this.ctx.lineTo(x + 3, y + 2);
+                        this.ctx.lineTo(x - 3, y + 2);
+                        this.ctx.closePath();
+                        this.ctx.fill();
+                    }
+                }
+                break;
+            case 'zigzag':
+                for (let y = 0; y < CONFIG.CANVAS_HEIGHT; y += spacing) {
+                    this.ctx.beginPath();
+                    for (let x = 0; x < CONFIG.CANVAS_WIDTH; x += spacing / 2) {
+                        const zigY = y + ((x / (spacing / 2)) % 2 === 0 ? -5 : 5);
+                        if (x === 0) this.ctx.moveTo(x, zigY);
+                        else this.ctx.lineTo(x, zigY);
+                    }
+                    this.ctx.stroke();
+                }
+                break;
+            case 'triangles':
+                for (let x = 0; x < CONFIG.CANVAS_WIDTH; x += spacing) {
+                    for (let y = 0; y < CONFIG.CANVAS_HEIGHT; y += spacing) {
+                        this.ctx.beginPath();
+                        this.ctx.moveTo(x, y);
+                        this.ctx.lineTo(x + 10, y + 10);
+                        this.ctx.lineTo(x - 10, y + 10);
+                        this.ctx.closePath();
+                        this.ctx.fill();
+                    }
+                }
+                break;
+            case 'diamonds':
+                for (let x = 0; x < CONFIG.CANVAS_WIDTH; x += spacing) {
+                    for (let y = 0; y < CONFIG.CANVAS_HEIGHT; y += spacing) {
+                        this.ctx.beginPath();
+                        this.ctx.moveTo(x, y - 8);
+                        this.ctx.lineTo(x + 8, y);
+                        this.ctx.lineTo(x, y + 8);
+                        this.ctx.lineTo(x - 8, y);
+                        this.ctx.closePath();
+                        this.ctx.stroke();
+                    }
+                }
+                break;
+        }
+
+        this.ctx.globalAlpha = 1.0;
     }
 
     drawBlock(block) {
@@ -473,6 +712,12 @@ class TowerGame {
         }
 
         livesDisplay.innerHTML = hearts.join('');
+    }
+
+    updateRetriesDisplay() {
+        const retriesDisplay = document.getElementById('retriesDisplay');
+        retriesDisplay.textContent = this.retries > 0 ? '✨' : '❌';
+        retriesDisplay.style.opacity = this.retries > 0 ? '1' : '0.3';
     }
 
     updateMessage(message) {

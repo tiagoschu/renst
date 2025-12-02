@@ -55,6 +55,10 @@ h1 {
     color: #E91E63;
 }
 
+.retries {
+    color: #9C27B0;
+}
+
 .heart {
     display: inline-block;
     font-size: 1.2em;
@@ -316,13 +320,14 @@ button:disabled {
     }
 
     .score-board {
-        font-size: 0.9em;
+        font-size: 0.8em;
         flex-wrap: wrap;
-        gap: 10px;
+        gap: 8px;
     }
 
     .score-board > div {
-        flex: 1 1 40%;
+        flex: 1 1 45%;
+        min-width: 120px;
     }
 
     #gameCanvas {
